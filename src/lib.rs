@@ -324,7 +324,7 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use riscv::register::mcause;
+use riscv::register::scause;
 pub use riscv_rt_macros::{entry, pre_init};
 
 #[export_name = "error: riscv-rt appears more than once in the dependency graph"]
@@ -415,7 +415,7 @@ pub extern "C" fn start_trap_rust(trap_frame: *const TrapFrame) {
     }
 
     unsafe {
-        let cause = mcause::read();
+        let cause = scause::read();
         if cause.is_exception() {
             ExceptionHandler(&*trap_frame)
         } else {
@@ -530,13 +530,15 @@ pub unsafe extern "Rust" fn default_pre_init() {}
 #[no_mangle]
 #[rustfmt::skip]
 pub extern "Rust" fn default_mp_hook() -> bool {
-    use riscv::register::mhartid;
+    true
+/*    use riscv::register::mhartid;
     match mhartid::read() {
         0 => true,
         _ => loop {
             unsafe { riscv::asm::wfi() }
         },
     }
+*/
 }
 
 /// Default implementation of `_setup_interrupts` that sets `mtvec` to a trap handler address.
@@ -544,9 +546,9 @@ pub extern "Rust" fn default_mp_hook() -> bool {
 #[no_mangle]
 #[rustfmt::skip]
 pub unsafe extern "Rust" fn default_setup_interrupts() {
-    use riscv::register::mtvec::{self, TrapMode};
+    use riscv::register::stvec::{self, TrapMode};
     extern "C" {
         fn _start_trap();
     }
-    mtvec::write(_start_trap as usize, TrapMode::Direct);
+    stvec::write(_start_trap as usize, TrapMode::Direct);
 }

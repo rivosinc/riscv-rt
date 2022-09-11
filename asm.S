@@ -46,8 +46,8 @@ _abs_start:
     .cfi_startproc
     .cfi_undefined ra
 
-    csrw mie, 0
-    csrw mip, 0
+    csrw sie, 0
+    csrw sip, 0
 
     li  x1, 0
     li  x2, 0
@@ -85,10 +85,10 @@ _abs_start:
     .option pop
 
     // Check hart id
-    csrr t2, mhartid
-    lui t0, %hi(_max_hart_id)
-    add t0, t0, %lo(_max_hart_id)
-    bgtu t2, t0, abort
+//    csrr t2, mhartid
+  //  lui t0, %hi(_max_hart_id)
+    //add t0, t0, %lo(_max_hart_id)
+    //bgtu t2, t0, abort
 
     // Allocate stacks
     la sp, _stack_start
